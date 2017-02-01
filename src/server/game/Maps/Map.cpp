@@ -47,6 +47,7 @@ u_map_magic MapLiquidMagic  = { {'M','L','I','Q'} };
 #define DEFAULT_GRID_EXPIRY     300
 #define MAX_GRID_LOAD_TIME      50
 #define MAX_CREATURE_ATTACK_RADIUS  (45.0f * sWorld->getRate(RATE_CREATURE_AGGRO))
+#define MAP_INVALID_ZONE        0xFFFFFFFF
 
 GridState* si_GridStates[MAX_GRID_STATE];
 
@@ -727,7 +728,7 @@ void Map::UpdatePlayerZoneStats(uint32 oldZone, uint32 newZone)
         oldZoneCount = oldItr->second;
 
     // Sanity check, we're leaving a zone (that isn't the default) and there's no players there (should be at least one)
-    if (oldZone != 0xFFFFFFFF && oldZoneCount == 0)
+    if (oldZone != MAP_INVALID_ZONE && oldZoneCount == 0)
     {
         TC_LOG_WARN("maps", "Player left zone %u, when no players in zone!", oldZone);
         return;
@@ -740,15 +741,15 @@ void Map::UpdatePlayerZoneStats(uint32 oldZone, uint32 newZone)
 
     // If there is already a count then the iterator will exist, use it to subtract one.
     // If there was only one (us) delete the element entirely.
-    if (oldZone != 0xFFFFFFFF && oldZoneCount > 1)
+    if (oldZone != MAP_INVALID_ZONE && oldZoneCount > 1)
         oldItr->second--;
-    else if (oldZone != 0xFFFFFFFF && oldZoneCount == 1)
+    else if (oldZone != MAP_INVALID_ZONE && oldZoneCount == 1)
         _zonePlayerCountMap.erase(oldItr);
 
     // If we already have an iterator (already players in the area) increment. Otherwise, add to map
-    if (newZone != 0xFFFFFFFF && newZoneCount > 0)
+    if (newZone != MAP_INVALID_ZONE && newZoneCount > 0)
         newItr->second++;
-    else if (newZone != 0xFFFFFFFF)
+    else if (newZone != MAP_INVALID_ZONE)
         _zonePlayerCountMap[newZone]++;
 }
 
@@ -994,7 +995,7 @@ void Map::ProcessRelocationNotifies(const uint32 diff)
 void Map::RemovePlayerFromMap(Player* player, bool remove)
 {
     // Before leaving map, update zone/area for stats
-    player->UpdateZone(0xFFFFFFFF, 0);
+    player->UpdateZone(MAP_INVALID_ZONE, 0);
     sScriptMgr->OnPlayerLeaveMap(this, player);
 
     player->getHostileRefManager().deleteReferences(); // multithreading crashfix
