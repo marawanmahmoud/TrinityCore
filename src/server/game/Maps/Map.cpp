@@ -4314,18 +4314,10 @@ void Map::SaveCreatureRespawnTime(ObjectGuid::LowType spawnId, uint32 entry, tim
     if (!WriteDB || spawnId > 0xFFFFFF)
         return;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CREATURE_RESPAWN);
-    stmt->setUInt32(0, spawnId);
-    stmt->setUInt32(1, uint32(ri.originalRespawnTime));     // Note, use from ri, in case it was changed during add process
-    stmt->setUInt16(2, GetId());
-    stmt->setUInt32(3, GetInstanceId());
-    if (respawntrans)
-        respawntrans->Append(stmt);
-    else
-        CharacterDatabase.Execute(stmt);
+    SaveCreatureRespawnTimeDB(spawnId, ri.originalRespawnTime, respawntrans);
 }
 
-void Map::SaveCreatureRespawnTimeDB(ObjectGuid::LowType spawnId, time_t respawnTime)
+void Map::SaveCreatureRespawnTimeDB(ObjectGuid::LowType spawnId, time_t respawnTime, SQLTransaction respawntrans)
 {
     // Just here for support of compatibility mode
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_CREATURE_RESPAWN);
@@ -4333,7 +4325,10 @@ void Map::SaveCreatureRespawnTimeDB(ObjectGuid::LowType spawnId, time_t respawnT
     stmt->setUInt32(1, uint32(respawnTime));
     stmt->setUInt16(2, GetId());
     stmt->setUInt32(3, GetInstanceId());
-    CharacterDatabase.Execute(stmt);
+    if (respawntrans)
+        respawntrans->Append(stmt);
+    else
+        CharacterDatabase.Execute(stmt);
 }
 
 void Map::SaveGORespawnTime(ObjectGuid::LowType spawnId, uint32 entry, time_t respawnTime, uint32 cellAreaZoneId, uint32 gridId, bool WriteDB, bool replace, SQLTransaction respawntrans)
@@ -4359,25 +4354,20 @@ void Map::SaveGORespawnTime(ObjectGuid::LowType spawnId, uint32 entry, time_t re
     if (!WriteDB || spawnId > 0xFFFFFF)
         return;
 
-    PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GO_RESPAWN);
-    stmt->setUInt32(0, spawnId);
-    stmt->setUInt32(1, uint32(ri.originalRespawnTime));     // Note, use from ri, in case it was changed during add process
-    stmt->setUInt16(2, GetId());
-    stmt->setUInt32(3, GetInstanceId());
-    if (respawntrans)
-        respawntrans->Append(stmt);
-    else
-        CharacterDatabase.Execute(stmt);
+    SaveGORespawnTimeDB(spawnId, ri.originalRespawnTime, respawntrans);
 }
 
-void Map::SaveGORespawnTimeDB(ObjectGuid::LowType spawnId, time_t respawnTime)
+void Map::SaveGORespawnTimeDB(ObjectGuid::LowType spawnId, time_t respawnTime, SQLTransaction respawntrans)
 {
     PreparedStatement* stmt = CharacterDatabase.GetPreparedStatement(CHAR_REP_GO_RESPAWN);
     stmt->setUInt32(0, spawnId);
     stmt->setUInt32(1, uint32(respawnTime));     // Note, use from ri, in case it was changed during add process
     stmt->setUInt16(2, GetId());
     stmt->setUInt32(3, GetInstanceId());
-    CharacterDatabase.Execute(stmt);
+    if (respawntrans)
+        respawntrans->Append(stmt);
+    else
+        CharacterDatabase.Execute(stmt);
 }
 
 uint32 Map::GetZoneAreaGridId(RespawnObjectType objectType, float x, float y, float z)

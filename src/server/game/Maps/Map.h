@@ -556,9 +556,9 @@ class TC_GAME_API Map : public GridRefManager<NGridType>
         void UpdatePlayerAreaStats(uint32 oldArea, uint32 newArea);
 
         void SaveCreatureRespawnTime(ObjectGuid::LowType spawnId, uint32 entry, time_t respawnTime, uint32 cellAreaZoneId = 0, uint32 gridId = 0, bool WriteDB = true, bool replace = false, SQLTransaction respawntrans = nullptr);
-        void SaveCreatureRespawnTimeDB(ObjectGuid::LowType spawnId, time_t respawnTime);
+        void SaveCreatureRespawnTimeDB(ObjectGuid::LowType spawnId, time_t respawnTime, SQLTransaction respawntrans = nullptr);
         void SaveGORespawnTime(ObjectGuid::LowType spawnId, uint32 entry, time_t respawnTime, uint32 cellAreaZoneId = 0, uint32 gridId = 0, bool WriteDB = true, bool replace = false, SQLTransaction respawntrans = nullptr);
-        void SaveGORespawnTimeDB(ObjectGuid::LowType spawnId, time_t respawnTime);
+        void SaveGORespawnTimeDB(ObjectGuid::LowType spawnId, time_t respawnTime, SQLTransaction respawntrans = nullptr);
         enum RespawnObjectType
         {
             OBJECT_TYPE_CREATURE        = 0,
